@@ -40,7 +40,7 @@ class ContentHandler(LLMContentHandler):
 
     def transform_input(self, prompt: str, model_kwargs: Dict={}) -> bytes:
         self.len_prompt = len(prompt)
-        input_str = json.dumps({"inputs": prompt, "parameters":{"max_new_tokens": st.session_state.max_token, "temperature":st.session_state.temperature, "seed":st.session_state.seed, "stop": ["Human:"]}})
+        input_str = json.dumps({"inputs": prompt, "parameters":{"max_new_tokens": st.session_state.max_token, "max_length": 1024, "temperature":st.session_state.temperature, "seed":st.session_state.seed, "stop": ["Human:"], "do_sample":True, "num_beams":1}})
         print(input_str)
         return input_str.encode('utf-8')
 
@@ -60,7 +60,7 @@ class ContentHandlerT5(LLMContentHandler):
 
     def transform_input(self, prompt: str, model_kwargs: Dict={}) -> bytes:
         self.len_prompt = len(prompt)
-        input_str = json.dumps({"inputs": prompt, "parameters":{"max_length": st.session_state.max_token, "temperature":st.session_state.temperature, "seed":st.session_state.seed, "stop": ["Human:"]}})
+        input_str = json.dumps({"inputs": prompt, "parameters":{"max_new_tokens": st.session_state.max_token, "max_length": 1024, "temperature":st.session_state.temperature, "seed":st.session_state.seed, "stop": ["Human:"], "do_sample":True, "num_beams":1}})
         print(input_str)
         return input_str.encode('utf-8')
 
@@ -199,27 +199,28 @@ with left_column:
                 message(st.session_state["generated"][i], key=str(i))
                 
 with right_column:
-    st.header('Available parameters:')
-    max_new_tokens= st.slider(
-        min_value=8,
-        max_value=1024,
-        step=1,
-        value=150,
-        label="Number of tokens to generate",
-        key="max_token"
-    )
-    temperature = st.slider(
-        min_value=0.1,
-        max_value=2.5,
-        step=0.1,
-        value=0.3,
-        label="Temperature",
-        key="temperature"
-    )
-    seed = st.slider(
-        min_value=0,
-        max_value=1000,
-        step=1,
-        label="Random seed to use for the generation",
-        key="seed"
-    )
+    if st.checkbox("show available parameters:"):
+        max_new_tokens= st.slider(
+            min_value=8,
+            max_value=1024,
+            step=1,
+            value=200,
+            label="Number of tokens to generate",
+            key="max_token"
+        )
+        temperature = st.slider(
+            min_value=0.1,
+            max_value=2.5,
+            step=0.1,
+            value=0.4,
+            label="Temperature",
+            key="temperature"
+        )
+        seed = st.slider(
+            min_value=0,
+            max_value=1000,
+            value=0,
+            step=1,
+            label="Random seed to use for the generation",
+            key="seed"
+        )
